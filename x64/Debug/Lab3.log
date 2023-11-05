@@ -1,0 +1,5 @@
+﻿  Mediator.cpp
+C:\Users\pow-j\Documents\MojeDokumenty\Politechnika\Semestr III\Techniki Efektywnego Programowania\Laboratorium\Lab3\Mediator.cpp(33,21): warning C4267: "inicjowanie": konwersja z "size_t" do "int", możliwa utrata danych
+C:\Users\pow-j\Documents\MojeDokumenty\Politechnika\Semestr III\Techniki Efektywnego Programowania\Laboratorium\Lab3\Mediator.cpp(207,21): warning C4267: "inicjowanie": konwersja z "size_t" do "int", możliwa utrata danych
+C:\Users\pow-j\Documents\MojeDokumenty\Politechnika\Semestr III\Techniki Efektywnego Programowania\Laboratorium\Lab3\Mediator.cpp(211,31): warning C4267: "=": konwersja z "size_t" do "int", możliwa utrata danych
+  Lab3.vcxproj -> C:\Users\pow-j\Documents\MojeDokumenty\Politechnika\Semestr III\Techniki Efektywnego Programowania\Laboratorium\Lab3\x64\Debug\Lab3.exe
