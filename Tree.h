@@ -20,19 +20,23 @@ public:
 
 	~Tree();
 
-	std::string toString();
-
-	std::vector<std::string> findAllVariables();
-
-	double evaluate(std::string inputVariableValues);
-
 	void build(std::string inputString);
 
-	void join(std::string inputString);
+	double evaluate(std::string inputVariableValues);
 
 	void subscribe(Subscriber* subscriber);
 
 	void unsubscribe(Subscriber* subscriber);
 
-	void update(std::string message);
+	void update(std::string message) override;
+
+	Tree& operator=(const Tree& other);
+
+	Tree* operator+(Tree& other);		
+
+	std::vector<std::string> findAllVariables();
+
+	std::string toString();
+
+	std::string toStringVisible();
 };

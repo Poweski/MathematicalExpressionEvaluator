@@ -22,26 +22,17 @@ void Tree::build(std::string inputString)
 
 	if (output != strBlank)
 	{
-		update(tooManyArgsMsg);
+		update(strTooManyArgsMsg);
 	}
-}
-
-std::vector<std::string> Tree::findAllVariables()
-{
-	std::vector<std::string> arrayOfVariables;
-
-	return root->findAllVariables(arrayOfVariables);
 }
 
 double Tree::evaluate(std::string inputVariableValues)
 {
-	//zabezpieczyc sie przed nieprawidlowa iloscia wartosci
-	std::vector<std::string> arrayOfVariables = findAllVariables();
-	std::vector<int> arrayOfVariableValues;
-
-	std::string readString = strBlank, remainingString = inputVariableValues;
-
-	int indexOfFirstSpace = inputVariableValues.find_first_of(strSpace);
+	std::vector<std::string> vectorOfVariables = findAllVariables();
+	std::vector<int> vectorOfVariableValues;
+	std::string readString = strBlank;
+	std::string remainingString = inputVariableValues;
+	int indexOfFirstSpace = 0;
 
 	while (remainingString.length() > 0)
 	{
@@ -61,8 +52,6 @@ double Tree::evaluate(std::string inputVariableValues)
 			indexOfFirstSpace = inputVariableValues.find_first_of(strSpace);
 		}
 
-		remainingString = inputVariableValues;
-
 		if (indexOfFirstSpace != std::string::npos)
 		{
 			readString = remainingString.substr(0, indexOfFirstSpace);
@@ -70,42 +59,62 @@ double Tree::evaluate(std::string inputVariableValues)
 		}
 		else
 		{
+			readString = remainingString;
 			remainingString = strBlank;
-
-			if (inputVariableValues.length() > 0) 
-			{ 
-				readString = inputVariableValues; 
-			}
-			else 
-			{ 
-				readString = str1; 
-
-				update(tooFewArgsMsg);
-			} 
 		}
 
-		arrayOfVariableValues.push_back(stoi(readString));
+		int arrayOfCharactersLength = inputVariableValues.length();
+		int* arrayOfCharacters = new int[arrayOfCharactersLength];
+		int actualIndexOfParsedSymbols = 0;
+		char currentlyParsedSymbol = charSpace;
+
+		for (int i = 0; i < readString.length(); i++)
+		{
+			currentlyParsedSymbol = readString[i];
+
+			if (currentlyParsedSymbol >= char0 && currentlyParsedSymbol <= char9)
+			{
+				arrayOfCharacters[actualIndexOfParsedSymbols] = currentlyParsedSymbol;
+				actualIndexOfParsedSymbols++;
+			}
+			else
+			{
+				arrayOfCharactersLength--;
+
+				update(strSkippedMsg + currentlyParsedSymbol);
+			}
+		}
+
+		if (actualIndexOfParsedSymbols > 0)
+		{
+			readString = strBlank;
+		}
+		else
+		{
+			readString = str1;
+			update(strTooFewArgsMsg);
+		}
+
+		for (int i = 0; i < actualIndexOfParsedSymbols; i++)
+		{
+			readString += arrayOfCharacters[i];
+		}
+
+		vectorOfVariableValues.push_back(stoi(readString));
 	}
 
-	return root->evaluate(arrayOfVariables, arrayOfVariableValues);
-}
+	while (vectorOfVariableValues.size() < vectorOfVariables.size())
+	{
+		vectorOfVariableValues.push_back(stoi(str1));
+		update(strTooFewArgsMsg);
+	}
 
-void Tree::join(std::string inputString)
-{
-	Node* secondRoot;
+	if (vectorOfVariableValues.size() > vectorOfVariables.size())
+	{
+		update(strTooManyArgsMsg);
+	}
 
-	secondRoot = new Node();
-
-	secondRoot->subscribe(this);
-
-	secondRoot->build(inputString);
-
-	root->join(secondRoot);
-}
-
-std::string Tree::toString()
-{
-	return root->toStringAll();
+	return root->evaluate(vectorOfVariables, vectorOfVariableValues);
 }
 
 void Tree::subscribe(Subscriber* subscriber)
@@ -118,10 +127,58 @@ void Tree::unsubscribe(Subscriber* subscriber)
 	subscribers.erase(std::remove(subscribers.begin(), subscribers.end(), subscriber), subscribers.end());
 }
 
-void Tree::update(std::string message)
+void Tree::update(std::string message) 
 {
 	for (Subscriber* subscriber : subscribers)
 	{
 		subscriber->update(message);
 	}
+}
+
+Tree& Tree::operator=(const Tree& other)
+{
+	delete root;
+
+	Node* newRoot = other.root->copyAll();
+
+	root = newRoot;
+
+	inputStr = other.inputStr;
+	subscribers = other.subscribers;
+
+	return *this;
+}
+
+Tree* Tree::operator+(Tree& other)
+{
+	Tree* thisCopy = new Tree();
+	Tree* otherCopy = new Tree();
+
+	*thisCopy = *this;
+	*otherCopy = other;
+
+	if (thisCopy->root->join(otherCopy->root))
+	{
+		delete thisCopy;
+		thisCopy->root = otherCopy->root;
+	}
+
+	return thisCopy;
+}
+
+std::vector<std::string> Tree::findAllVariables()
+{
+	std::vector<std::string> arrayOfVariables;
+
+	return root->findAllVariables(arrayOfVariables);
+}
+
+std::string Tree::toString()
+{
+	return root->toStringAll();
+}
+
+std::string Tree::toStringVisible()
+{
+	return root->toStringAll();
 }

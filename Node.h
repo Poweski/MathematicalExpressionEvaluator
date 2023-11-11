@@ -24,7 +24,11 @@ private:
 
 	std::string value;
 
+	std::string visibleValue;
+
 	int numberOfChildren;
+
+	bool isVisible;
 
 	Node** children;
 
@@ -67,6 +71,8 @@ public:
 	void subscribe(Subscriber* subscriber);
 
 	void unsubscribe(Subscriber* subscriber);
+
+	Node* copyAll();
 };
 
 const int defaultNumberOfChildren = 0;
@@ -93,10 +99,15 @@ const char charSpace = ' ';
 
 const std::string strBlank = "";
 const std::string strSpace = " ";
+const std::string strEqualSign = "=";
+const std::string strLeftBracket = "(";
+const std::string strRightBracket = ")";
 const std::string str1 = "1";
 const std::string newLine = "\n";
+const std::string tab = "\t";
 
-const std::string skippedMsg = "symbol skipped: ";
-const std::string divisionBy0Msg = "division by 0!";
-const std::string tooFewArgsMsg = "too few arguments!";
-const std::string tooManyArgsMsg = "too many arguments!";
+const std::string strCurled = "(curled)";
+const std::string strSkippedMsg = "symbol skipped: ";
+const std::string strDivisionBy0Msg = "division by 0!";
+const std::string strTooFewArgsMsg = "too few arguments!";
+const std::string strTooManyArgsMsg = "too many arguments!";

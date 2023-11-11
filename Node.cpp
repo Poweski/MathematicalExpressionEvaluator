@@ -4,8 +4,10 @@ Node::Node()
 {
 	nodeType = UNDEFINED;
 	value = strBlank;
+	visibleValue = value;
 	numberOfChildren = defaultNumberOfChildren;
 	children = nullptr;
+	isVisible = true;
 }
 
 Node::~Node()
@@ -50,7 +52,7 @@ std::string Node::build(std::string inputString)
 		{ 
 			readString = str1;
 
-			notify(tooFewArgsMsg);
+			notify(strTooFewArgsMsg);
 		} 
 	}
 
@@ -76,7 +78,7 @@ std::string Node::build(std::string inputString)
 		{
 			arrayOfCharactersLength--;
 
-			notify(skippedMsg + currentlyParsedSymbol);
+			notify(strSkippedMsg + currentlyParsedSymbol);
 		}
 	}
 
@@ -87,7 +89,46 @@ std::string Node::build(std::string inputString)
 		resultValue += arrayOfCharacters[i];
 	}
 
+	if (resultValue.size() > 1)
+	{
+		int tempArrayOfCharactersLength = resultValue.length();
+		int* tempArrayOfCharacters = new int[tempArrayOfCharactersLength];
+		actualIndexOfParsedSymbols = 0;
+		char currentlyParsedSymbol = charSpace;
+
+		for (int i = 0; i < readString.length(); i++)
+		{
+			currentlyParsedSymbol = readString[i];
+
+			if (currentlyParsedSymbol >= char0 && currentlyParsedSymbol <= char9 ||
+				currentlyParsedSymbol >= chara && currentlyParsedSymbol <= charz ||
+				currentlyParsedSymbol >= charA && currentlyParsedSymbol <= charZ)
+			{
+				tempArrayOfCharacters[actualIndexOfParsedSymbols] = currentlyParsedSymbol;
+				actualIndexOfParsedSymbols++;
+			}
+			else
+			{
+				tempArrayOfCharactersLength--;
+
+				notify(strSkippedMsg + currentlyParsedSymbol);
+			}
+		}
+
+		resultValue = strBlank;
+
+		for (int i = 0; i < tempArrayOfCharactersLength; i++)
+		{
+			resultValue += tempArrayOfCharacters[i];
+		}
+
+		delete[] arrayOfCharacters;
+		arrayOfCharacters = tempArrayOfCharacters;
+		arrayOfCharactersLength = tempArrayOfCharactersLength;
+	}
+
 	value = resultValue;
+	visibleValue = value;
 
 	bool numberFlag = true, variableFlag = false;
 	bool additionFlag = false, subtractionFlag = false, multiplicationFlag = false, divisionFlag = false;
@@ -148,6 +189,16 @@ std::string Node::build(std::string inputString)
 		{ 
 			numberFlag = false; 
 		}
+	}
+
+	if (arrayOfCharactersLength == 0)
+	{
+		numberFlag = true;
+
+		value = str1;
+		visibleValue = value;
+
+		notify(strTooFewArgsMsg);
 	}
 
 	if (numberFlag == false && additionFlag == false && subtractionFlag == false && 
@@ -301,6 +352,8 @@ double Node::evaluate(std::vector<std::string> vectorOfVariables, std::vector<in
 		{
 			if (*it == value) 
 			{ 
+				visibleValue = std::to_string(vectorOfVariableValues.at(index)) + strLeftBracket + value + strRightBracket ;
+
 				return (double)(vectorOfVariableValues.at(index));
 			}
 
@@ -323,12 +376,16 @@ double Node::evaluate(std::vector<std::string> vectorOfVariables, std::vector<in
 		if (children[1]->evaluate(vectorOfVariables, vectorOfVariableValues) != 0)
 		{
 			result = children[0]->evaluate(vectorOfVariables, vectorOfVariableValues) / children[1]->evaluate(vectorOfVariables, vectorOfVariableValues);
+
+			children[1]->isVisible = true;
 		}
 		else
 		{
 			result = children[0]->evaluate(vectorOfVariables, vectorOfVariableValues) / 1;
 
-			notify(divisionBy0Msg);
+			children[1]->isVisible = false;
+
+			notify(strDivisionBy0Msg);
 		}
 		
 		break;
@@ -358,21 +415,27 @@ bool Node::join(Node* secondRoot)
 		break;
 	case ADDITION:
 		joinInBinaryOperator(secondRoot);
+		return false;
 		break;
 	case SUBTRACTION:
 		joinInBinaryOperator(secondRoot);
+		return false;
 		break;
 	case MULTIPLICATION:
 		joinInBinaryOperator(secondRoot);
+		return false;
 		break;
 	case DIVISION:
 		joinInBinaryOperator(secondRoot);
+		return false;
 		break;
 	case SIN:
 		joinInUnaryOperator(secondRoot);
+		return false;
 		break;
 	case COS:
 		joinInUnaryOperator(secondRoot);
+		return false;
 		break;
 	default: 
 		return true;
@@ -384,6 +447,7 @@ void Node::joinInBinaryOperator(Node* secondRoot)
 {
 	if (children[1]->join(secondRoot))
 	{
+		delete children[1];
 		children[1] = secondRoot;
 	}
 }
@@ -392,25 +456,35 @@ void Node::joinInUnaryOperator(Node* secondRoot)
 {
 	if (children[0]->join(secondRoot))
 	{
+		delete children[0];
 		children[0] = secondRoot;
 	}
 }
 
 std::string Node::toStringAll()
 {
-	std::string result = toString() + strSpace;
-
-	for (int i = 0; i < numberOfChildren; i++)
+	if (isVisible)
 	{
-		result += children[i]->toStringAll();
-	}
+		std::string result = toString() + strSpace;
 
-	return result;
+		for (int i = 0; i < numberOfChildren; i++)
+		{
+			result += children[i]->toStringAll();
+		}
+
+		isVisible = true;
+
+		return result;
+	}
+	else
+	{
+		return str1 + strCurled;
+	}
 }
 
 std::string Node::toString()
 {
-	return value;
+	return visibleValue;
 }
 
 void Node::subscribe(Subscriber* subscriber) 
@@ -429,4 +503,25 @@ void Node::notify(std::string message)
 	{
 		subscriber->update(message);
 	}
+}
+
+Node* Node::copyAll()
+{
+	Node* newNode = new Node();
+
+	newNode->nodeType = nodeType;
+	newNode->value = value;
+	newNode->visibleValue = visibleValue;
+	newNode->isVisible = isVisible;
+	newNode->numberOfChildren = numberOfChildren;
+	newNode->subscribers = subscribers;
+
+	newNode->children = new Node* [numberOfChildren];
+
+	for (int i = 0; i < numberOfChildren; i++)
+	{
+		newNode->children[i] = children[i]->copyAll();
+	}
+
+	return newNode;
 }

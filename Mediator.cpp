@@ -19,12 +19,14 @@ Mediator::~Mediator()
 
 void Mediator::run()
 {
-	std::string prompt = strBlank;
+	std::cout << strHelpMsg + newLine << std::endl;
+
+	std::string order = strBlank;
 	std::string remaining = strBlank;
 
 	bool doesTreeExist = false;
 
-	while (prompt != strStop)
+	while (order != strStop)
 	{
 		std::string input;
 
@@ -34,21 +36,31 @@ void Mediator::run()
 
 		if (spacePosition != std::string::npos) 
 		{
-			prompt = input.substr(0, spacePosition);
+			order = input.substr(0, spacePosition);
 			remaining = input.substr(spacePosition + 1);
 		}
 		else 
 		{
-			prompt = input;
+			order = input;
+			remaining = strBlank;
 		}
 
-		if (prompt == strEnter) 
+		if (order == strHelp)
+		{
+			std::cout << strHelpEnterMsg << std::endl;
+			std::cout << strHelpVarsMsg << std::endl;
+			std::cout << strHelpPrintMsg << std::endl;
+			std::cout << strHelpCompMsg << std::endl;
+			std::cout << strHelpJoinMsg << std::endl;
+			std::cout << strHelpStopMsg + newLine << std::endl;
+		}
+		else if (order == strEnter) 
 		{ 
 			doesTreeExist = true;
 
 			enter(remaining); 
 		}
-		else if (prompt == strVars) 
+		else if (order == strVars) 
 		{ 
 			if (doesTreeExist)
 			{
@@ -59,7 +71,7 @@ void Mediator::run()
 				std::cout << strEnterWarning << std::endl;
 			}
 		}
-		else if (prompt == strPrint) 
+		else if (order == strPrint) 
 		{ 
 			if (doesTreeExist)
 			{
@@ -70,7 +82,7 @@ void Mediator::run()
 				std::cout << strEnterWarning << std::endl;
 			}
 		}
-		else if (prompt == strComp) 
+		else if (order == strComp) 
 		{
 			if (doesTreeExist)
 			{
@@ -81,7 +93,7 @@ void Mediator::run()
 				std::cout << strEnterWarning << std::endl;
 			}
 		}
-		else if (prompt == strJoin) 
+		else if (order == strJoin) 
 		{ 
 			if (doesTreeExist)
 			{
@@ -92,19 +104,22 @@ void Mediator::run()
 				std::cout << strEnterWarning << std::endl;
 			}
 		}
-		else if (prompt == strStop) 
+		else if (order == strStop) 
 		{
 
 		}
 		else 
 		{
 			std::cout << strInvalidCommand << std::endl;
+			std::cout << strHelpMsg + newLine << std::endl;
 		}
 	}
 }
 
 void Mediator::enter(std::string inputString)
 {
+	tree->unsubscribe(this);
+		
 	tree->subscribe(this);
 
 	tree->build(inputString);
@@ -124,7 +139,7 @@ void Mediator::vars()
 
 	for (std::vector<std::string>::iterator it = arrayOfVariables.begin(); it != arrayOfVariables.end(); ++it)
 	{
-		result += *it + tab;
+		result += *it + strSpace;
 	}
 
 	if (result == strBlank)
@@ -157,46 +172,38 @@ void Mediator::comp(std::string inputVariableValues)
 
 void Mediator::join(std::string inputString)
 {
+	Tree* secondTree = new Tree();
+	Tree* result = new Tree();
 
-}
+	secondTree->subscribe(this);
 
-void Mediator::printMsg()
-{
+	secondTree->build(inputString);
 
-	if (divisionBy0Flag == true)
-	{
-		std::cout << divisionBy0Msg << std::endl;
-	}
-	if (tooFewArgsFlag == true)
-	{
-		std::cout << tooFewArgsMsg << std::endl;
-	}
-	if (tooManyArgsFlag == true)
-	{
-		std::cout << tooManyArgsMsg << std::endl;
-	}
-	if (characterSkippedFlag == true)
-	{
-		std::cout << skippedMsg + msg << std::endl;
-	}
+	result = *tree + *secondTree;
 
+	delete tree;
+	delete secondTree;
+
+	tree = result;	
+	
 	if (isMsgMarked())
 	{
-		std::cout << strExpressionProcessed << tree->toString() << std::endl;
+		printMsg();
+		resetFlags();
 	}
 }
 
 void Mediator::update(std::string message)
 {
-	if (message == divisionBy0Msg)
+	if (message == strDivisionBy0Msg)
 	{
 		divisionBy0Flag = true;
 	}
-	else if (message == tooFewArgsMsg)
+	else if (message == strTooFewArgsMsg)
 	{
 		tooFewArgsFlag = true;
 	}
-	else if (message == tooManyArgsMsg)
+	else if (message == strTooManyArgsMsg)
 	{
 		tooManyArgsFlag = true;
 	}
@@ -214,6 +221,32 @@ void Mediator::update(std::string message)
 		{
 			msg += message.substr(spacePosition + 1) + strSpace;
 		}
+	}
+}
+
+void Mediator::printMsg()
+{
+
+	if (divisionBy0Flag == true)
+	{
+		std::cout << strDivisionBy0Msg << std::endl;
+	}
+	if (tooFewArgsFlag == true)
+	{
+		std::cout << strTooFewArgsMsg << std::endl;
+	}
+	if (tooManyArgsFlag == true)
+	{
+		std::cout << strTooManyArgsMsg << std::endl;
+	}
+	if (characterSkippedFlag == true)
+	{
+		std::cout << strSkippedMsg + msg << std::endl;
+	}
+
+	if (isMsgMarked())
+	{
+		std::cout << strExpressionProcessed << tree->toStringVisible() << std::endl;
 	}
 }
 
