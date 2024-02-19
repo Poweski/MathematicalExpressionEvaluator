@@ -1,36 +1,30 @@
 # Mathematical_Expression_Evaluator
+
 (third Effective Programming Techniques project)
 
-Program umożliwia wczytywanie formuł matematycznych, interpretowanie ich w
-postaci drzewa i wykorzystanie drzewa do wyliczenia wartości formuły. 
-Formuły matematyczne są podawane na wejście programu w postaci prefiksowej. 
-Komunikacja z programem odbywa się za pośrednictwem konsoli.
+## Comments:
+- The program allows you to load mathematical formulas, interpret them in the form of a tree and calculate values.
+- Mathematical formulas are provided to the program input in prefix form.
+- Communication with the program takes place via the console.
+- An expression can contain operation symbols, variables, and numbers.
+- Supported operation types: _+, -, *, /, sin, cos_.
+- Variable names consist of uppercase and lowercase letters and numbers.
+- If there is an illegal value in the string, e.g. _$_, we ignore it.
+- The variable name must contain at least one letter.
+- Numbers consist only of digits and can only be positive.
+- We assume that individual parts of the expression are separated from each other by at least one space.
+- The program corrects expressions by completing missing elements and omitting redundant ones.
+   For example, if the expression _+ + +_ is entered, the expression will be repaired to: _+ 1 + 1 + 1 1_.
+- Joining trees: If we join tree A with tree B, it means that instead of the last leaf of tree A we insert the root of tree B.
 
-Polecenia, które można wprowadzić do konsoli:
-enter <formula> - wykonanie powoduje próbę stworzenia drzewa na podstawie podanego
-wyrażenia. Jeżeli wyrażenie nie może zostać wczytane, bo posiada błędy, program 
-uzupełnia drzewo tak, żeby drzewo było prawidłowe.
-vars – wypisuje wszystkie zmienne z aktualnie wprowadzonego drzewa. Każda zmienna jest
-wypisywana jeden raz, nawet jeśli występuje w drzewie więcej razy.
-print – wypisuje aktualnie wprowadzone drzewo w postaci prefiksowej
-comp <var0> <var1>…<varN> – wyliczenie wartości wprowadzonej formuły, gdzie <var0>
-<var1>…<varN> to wartości dla kolejnych zmiennych występujących w drzewie. Wartości
-odpowiadają zmiennym w kolejności w jakiej zmienne są wypisywane przez polecenie vars.
-join <formula> - wykonanie powoduje próbę stworzenia drzewa na podstawie podanego
-wyrażenia. Następnie stworzone drzewo jest doklejane do istniejącego drzewa.
+## Commands:
+- **enter \<formula>** - Execution attempts to create a tree based on the given expression. If the expression cannot be loaded because it contains errors, the program completes the tree so that the tree is correct.
+- **vars** - Prints all variables from the currently entered tree. Each variable is printed once, even if it appears more than once in the tree.
+- **print** - Prints the currently entered tree in prefix form.
+- **comp \<var0> \<var1>…\<varN>** – Calculation of the value of the entered formula, where \<var0> \<var1>…\<varN> are the values for subsequent variables in the tree. The values correspond to the variables in the order in which the variables are printed by the vars command.
+- **join \<formula>** - Execution attempts to create a tree based on the given expression. Then the created tree is added to the existing tree.
 
-Wyrażenie może zawierać symbole operacji, zmienne i liczby
-Obsługiwane typy operacji: +, -, *, /, sin, cos.
-Nazwy zmiennych składają się z liter dużych i małych i cyfr.
-Jeśli w ciągu znaków znajduje się niedozwolona wartość np. „$”, to ignorujemy ją.
-W nazwie zmiennej musi wystąpić co najmniej jedna litera.
-Liczby składają się wyłącznie z cyfr i mogą być jedynie dodatnie.
-Przyjmujemy, że poszczególne człony wyrażenia są oddzielane od siebie co najmniej jedną spacją.
-Program poprawia wyrażenia poprzez uzupełnienie brakujących elementów i pominięcie nadmiarowych. 
-Na przykład, jeśli zostanie wprowadzone wyrażenie „+ + +”, to takie wyrażenie zostanie naprawione do: „ + 1 + 1 + 1 1”. 
-Łączenie drzew: Jeżeli łączymy drzewo A z drzewem B, to znaczy, że zamiast ostatniego z liści drzewa A  wstawiamy korzeń drzewa B. 
-
-W implementacji użyto trzech głównych klas: 
-Mediator
-Tree
-Node
+# Main classes:
+- **Mediator** - Responsible for communication with the user and tree management.
+- **Tree** - Stores nodes.
+- **Node** - Responsible for a single element of the expression. Reads and detects errors in the entered formula.
