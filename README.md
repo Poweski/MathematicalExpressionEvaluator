@@ -1,7 +1,5 @@
 # Mathematical_Expression_Evaluator
 
-(third Effective Programming Techniques project)
-
 ## Comments:
 - The program allows you to load mathematical formulas, interpret them in the form of a tree and calculate values.
 - Mathematical formulas are provided to the program input in prefix form.
